@@ -63,6 +63,7 @@ const Login = ({ onLogin }) => {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
           
@@ -75,6 +76,7 @@ const Login = ({ onLogin }) => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
           
@@ -89,6 +91,7 @@ const Login = ({ onLogin }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 style={{ paddingRight: '45px' }}
+                disabled={loading}
               />
               <button 
                 type="button" 

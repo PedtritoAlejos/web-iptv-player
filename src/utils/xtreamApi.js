@@ -5,8 +5,8 @@
 const wrapUrl = (fullUrl) => {
   // If we are on HTTPS and the target is HTTP, wrap it in a proxy
   if (window.location.protocol === 'https:' && fullUrl.startsWith('http:')) {
-    // Switching to corsproxy.io for better reliability
-    return `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`;
+    // Switching to codetabs for free production usage
+    return `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`;
   }
   return fullUrl;
 };
