@@ -2,19 +2,21 @@
  * Utility functions for interacting with Xtream Codes API
  */
 
-const wrapUrl = (url) => {
-  const cleanUrl = url.replace(/\/$/, "");
-  // If we are on HTTPS and the target is HTTP, or if we need to bypass CORS
-  if (window.location.protocol === 'https:' && cleanUrl.startsWith('http:')) {
-    return `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`;
+const wrapUrl = (fullUrl) => {
+  // If we are on HTTPS and the target is HTTP, wrap it in a proxy
+  if (window.location.protocol === 'https:' && fullUrl.startsWith('http:')) {
+    // We encode the entire target URL so the proxy handles it correctly
+    return `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`;
   }
-  return cleanUrl;
+  return fullUrl;
 };
 
 export const login = async (url, username, password) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}`);
+    
+    const response = await fetch(fullUrl);
     
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -35,8 +37,9 @@ export const login = async (url, username, password) => {
 
 export const getLiveCategories = async (url, username, password) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`);
+    const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -46,8 +49,9 @@ export const getLiveCategories = async (url, username, password) => {
 
 export const getLiveStreams = async (url, username, password, categoryId) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`);
+    const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
     console.error('Error fetching streams:', error);
@@ -57,8 +61,9 @@ export const getLiveStreams = async (url, username, password, categoryId) => {
 
 export const getVodCategories = async (url, username, password) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`);
+    const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
     console.error('Error fetching VOD categories:', error);
@@ -68,8 +73,9 @@ export const getVodCategories = async (url, username, password) => {
 
 export const getVodStreams = async (url, username, password, categoryId) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
+    const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
     console.error('Error fetching VOD streams:', error);
@@ -79,8 +85,9 @@ export const getVodStreams = async (url, username, password, categoryId) => {
 
 export const getSeriesCategories = async (url, username, password) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`);
+    const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
     console.error('Error fetching series categories:', error);
@@ -90,8 +97,9 @@ export const getSeriesCategories = async (url, username, password) => {
 
 export const getSeriesStreams = async (url, username, password, categoryId) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`);
+    const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
     console.error('Error fetching series streams:', error);
@@ -101,8 +109,9 @@ export const getSeriesStreams = async (url, username, password, categoryId) => {
 
 export const getSeriesInfo = async (url, username, password, seriesId) => {
   try {
-    const baseUrl = wrapUrl(url);
-    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`);
+    const cleanUrl = url.replace(/\/$/, "");
+    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`);
+    const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
     console.error('Error fetching series info:', error);
