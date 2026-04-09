@@ -5,8 +5,8 @@
 const wrapUrl = (fullUrl) => {
   // If we are on HTTPS and the target is HTTP, wrap it in a proxy
   if (window.location.protocol === 'https:' && fullUrl.startsWith('http:')) {
-    // We encode the entire target URL so the proxy handles it correctly
-    return `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`;
+    // Switching to corsproxy.io for better reliability
+    return `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`;
   }
   return fullUrl;
 };
