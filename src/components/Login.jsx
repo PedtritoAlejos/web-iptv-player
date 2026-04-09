@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { login } from '../utils/xtreamApi';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = ({ onLogin }) => {
   const [url, setUrl] = useState('');
@@ -8,6 +9,22 @@ const Login = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    // Pre-fill credentials if they exist in localStorage
+    const stored = localStorage.getItem('tv_altoke_creds');
+    if (stored) {
+      try {
+        const decoded = JSON.parse(atob(stored));
+        if (decoded.url) setUrl(decoded.url);
+        if (decoded.username) setUsername(decoded.username);
+        if (decoded.password) setPassword(decoded.password);
+      } catch (e) {
+        console.error('Failed to load stored credentials');
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,14 +80,25 @@ const Login = ({ onLogin }) => {
           
           <div className="form-group">
             <label>Contraseña</label>
-            <input 
-              type="password" 
-              className="form-control" 
-              placeholder="Tu contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                className="form-control" 
+                placeholder="Tu contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ paddingRight: '45px' }}
+              />
+              <button 
+                type="button" 
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex="-1"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

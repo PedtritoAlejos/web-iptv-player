@@ -102,6 +102,30 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  padding: 5px;
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-accent);
+}
+
 .btn-primary {
   width: 100%;
   padding: 14px;
