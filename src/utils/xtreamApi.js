@@ -2,10 +2,19 @@
  * Utility functions for interacting with Xtream Codes API
  */
 
+const wrapUrl = (url) => {
+  const cleanUrl = url.replace(/\/$/, "");
+  // If we are on HTTPS and the target is HTTP, or if we need to bypass CORS
+  if (window.location.protocol === 'https:' && cleanUrl.startsWith('http:')) {
+    return `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`;
+  }
+  return cleanUrl;
+};
+
 export const login = async (url, username, password) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}`);
     
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -26,8 +35,8 @@ export const login = async (url, username, password) => {
 
 export const getLiveCategories = async (url, username, password) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -37,8 +46,8 @@ export const getLiveCategories = async (url, username, password) => {
 
 export const getLiveStreams = async (url, username, password, categoryId) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching streams:', error);
@@ -48,8 +57,8 @@ export const getLiveStreams = async (url, username, password, categoryId) => {
 
 export const getVodCategories = async (url, username, password) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching VOD categories:', error);
@@ -59,8 +68,8 @@ export const getVodCategories = async (url, username, password) => {
 
 export const getVodStreams = async (url, username, password, categoryId) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching VOD streams:', error);
@@ -70,8 +79,8 @@ export const getVodStreams = async (url, username, password, categoryId) => {
 
 export const getSeriesCategories = async (url, username, password) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching series categories:', error);
@@ -81,8 +90,8 @@ export const getSeriesCategories = async (url, username, password) => {
 
 export const getSeriesStreams = async (url, username, password, categoryId) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching series streams:', error);
@@ -92,8 +101,8 @@ export const getSeriesStreams = async (url, username, password, categoryId) => {
 
 export const getSeriesInfo = async (url, username, password, seriesId) => {
   try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const response = await fetch(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`);
+    const baseUrl = wrapUrl(url);
+    const response = await fetch(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching series info:', error);
@@ -102,15 +111,19 @@ export const getSeriesInfo = async (url, username, password, seriesId) => {
 };
 
 export const getStreamUrl = (url, username, password, streamId, type = "live", extension = "mkv") => {
-  const cleanUrl = url.replace(/\/$/, "");
+  const baseUrl = url.replace(/\/$/, "");
+  let streamUrl = "";
+  
   if (type === "live") {
-    return `${cleanUrl}/live/${username}/${password}/${streamId}.m3u8`;
+    streamUrl = `${baseUrl}/live/${username}/${password}/${streamId}.m3u8`;
+  } else if (type === "movie") {
+    streamUrl = `${baseUrl}/movie/${username}/${password}/${streamId}.${extension}`;
+  } else if (type === "series") {
+    streamUrl = `${baseUrl}/series/${username}/${password}/${streamId}.${extension}`;
+  } else {
+    streamUrl = `${baseUrl}/live/${username}/${password}/${streamId}.m3u8`;
   }
-  if (type === "movie") {
-    return `${cleanUrl}/movie/${username}/${password}/${streamId}.${extension}`;
-  }
-  if (type === "series") {
-    return `${cleanUrl}/series/${username}/${password}/${streamId}.${extension}`;
-  }
-  return `${cleanUrl}/live/${username}/${password}/${streamId}.m3u8`;
+
+  // Wrap stream URL in proxy if needed to avoid Mixed Content blocks on the player
+  return wrapUrl(streamUrl);
 };
