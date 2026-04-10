@@ -12,6 +12,8 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const [isMuted, setIsMuted] = useState(true); // Start muted for mobile compatibility
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // { message, details }
+  const [showManualCopy, setShowManualCopy] = useState(false);
+  const [reportContent, setReportContent] = useState("");
   
   // Detect iOS for specific compatibility adjustments
   const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) || 
@@ -233,22 +235,20 @@ Fecha: ${new Date().toLocaleString()}
       const textArea = document.createElement("textarea");
       textArea.value = text;
       
-      // Some mobile browsers require the element to be slightly visible to allow selection
+      // Essential for iOS: must be visible and part of the viewport
       textArea.style.position = "fixed";
-      textArea.style.left = "0";
-      textArea.style.top = "0";
+      textArea.style.left = "10px";
+      textArea.style.top = "10px";
+      textArea.style.width = "1px";
+      textArea.style.height = "1px";
       textArea.style.opacity = "0.01";
-      textArea.style.width = "2em";
-      textArea.style.height = "2em";
-      textArea.style.padding = "0";
-      textArea.style.border = "none";
-      textArea.style.outline = "none";
-      textArea.style.boxShadow = "none";
-      textArea.style.background = "transparent";
       
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
+      
+      // Extra step for iOS
+      textArea.setSelectionRange(0, 99999);
       
       let successful = false;
       try {
@@ -260,8 +260,10 @@ Fecha: ${new Date().toLocaleString()}
       if (successful) {
         showToast('Detalles del error copiados', 'success');
       } else {
-        // Absolute last resort for HTTP/Restricted browsers: show a prompt with the text
-        window.prompt("Copia el reporte manualmente:", text);
+        // Fallback: show the manual copy text area in the UI
+        setReportContent(text);
+        setShowManualCopy(true);
+        showToast('Copia automática falló. Usa el cuadro inferior.', 'info');
       }
       
       document.body.removeChild(textArea);
@@ -344,6 +346,31 @@ Fecha: ${new Date().toLocaleString()}
                 nPlayer
               </a>
             </div>
+
+            {showManualCopy && (
+              <div style={{ marginTop: '15px' }}>
+                <textarea 
+                  readOnly 
+                  value={reportContent}
+                  onClick={(e) => e.target.select()}
+                  style={{
+                    width: '100%',
+                    height: '80px',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontSize: '0.7rem',
+                    padding: '10px',
+                    fontFamily: 'monospace',
+                    resize: 'none'
+                  }}
+                />
+                <div style={{ fontSize: '0.65rem', opacity: 0.6, marginTop: '5px' }}>
+                  Tu navegador bloqueó la copia automática. Selecciona y copia este texto manualmente.
+                </div>
+              </div>
+            )}
           </div>
         )}
         
