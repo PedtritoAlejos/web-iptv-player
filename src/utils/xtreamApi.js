@@ -2,21 +2,34 @@
  * Utility functions for interacting with Xtream Codes API
  */
 
-const wrapUrl = (fullUrl) => {
-  // To avoid CORS (Cross-Origin Resource Sharing) and Mixed Content issues, 
-  // we route external API calls through a proxy.
-  // This is necessary because IPTV providers usually don't send CORS headers.
+const wrapApiUrl = (fullUrl) => {
+  // To avoid CORS (Cross-Origin Resource Sharing) we route API metadata calls through a proxy.
   if (fullUrl.startsWith('http')) {
-    // Using codetabs as a free proxy service
     return `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`;
   }
+  return fullUrl;
+};
+
+export const wrapMediaUrl = (fullUrl) => {
+  if (!fullUrl) return fullUrl;
+  
+  // Mixed Content Check: If the app is on HTTPS, we MUST use a proxy for HTTP streams.
+  // BUT if the app is on HTTP, we should use DIRECT connections for media.
+  // Direct connections are essential for "Range" requests (seeking) which proxies often break.
+  const isCurrentlyHttps = window.location.protocol === 'https:';
+  const isMediaHttp = fullUrl.startsWith('http:');
+  
+  if (isCurrentlyHttps && isMediaHttp) {
+    return `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`;
+  }
+  
   return fullUrl;
 };
 
 export const login = async (url, username, password) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}`);
     
     const response = await fetch(fullUrl);
     
@@ -40,7 +53,7 @@ export const login = async (url, username, password) => {
 export const getLiveCategories = async (url, username, password) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -52,7 +65,7 @@ export const getLiveCategories = async (url, username, password) => {
 export const getLiveStreams = async (url, username, password, categoryId) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -64,7 +77,7 @@ export const getLiveStreams = async (url, username, password, categoryId) => {
 export const getVodCategories = async (url, username, password) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -76,7 +89,7 @@ export const getVodCategories = async (url, username, password) => {
 export const getVodStreams = async (url, username, password, categoryId) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -88,7 +101,7 @@ export const getVodStreams = async (url, username, password, categoryId) => {
 export const getSeriesCategories = async (url, username, password) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -100,7 +113,7 @@ export const getSeriesCategories = async (url, username, password) => {
 export const getSeriesStreams = async (url, username, password, categoryId) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -112,7 +125,7 @@ export const getSeriesStreams = async (url, username, password, categoryId) => {
 export const getSeriesInfo = async (url, username, password, seriesId) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -135,6 +148,6 @@ export const getStreamUrl = (url, username, password, streamId, type = "live", e
     streamUrl = `${baseUrl}/live/${username}/${password}/${streamId}.m3u8`;
   }
 
-  // Wrap stream URL in proxy if needed to avoid Mixed Content blocks on the player
-  return wrapUrl(streamUrl);
+  // Use wrapMediaUrl to prioritize direct connections for video streams
+  return wrapMediaUrl(streamUrl);
 };

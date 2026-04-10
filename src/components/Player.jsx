@@ -13,11 +13,18 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // { message, details }
   
+  // Detect iOS for specific compatibility adjustments
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  
+  // Optimization for iOS: Force .mp4 for VOD if the extension is .mkv (not supported by Safari)
+  const adjustedExtension = (isIOS && type !== "live" && extension === "mkv") ? "mp4" : extension;
+
+  const streamUrl = getStreamUrl(credentials.url, credentials.username, credentials.password, streamId, type, adjustedExtension);
+  
   // Time States
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-
-  const streamUrl = getStreamUrl(credentials.url, credentials.username, credentials.password, streamId, type, extension);
 
   useEffect(() => {
     let hls;
