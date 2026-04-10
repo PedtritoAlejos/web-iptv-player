@@ -30,8 +30,15 @@ if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
     exit("URL inválida");
 }
 
-// 3. Security: Whitelist allowed domains (Your IPTV Provider)
-$allowedDomains = ['chtvpro.com', 'novatv.us', 'restreamlatam.online'];
+// 3. Security: Whitelist allowed domains (IPTV Providers + Common Image Hosts)
+$allowedDomains = [
+    'chtvpro.com', 
+    'novatv.us', 
+    'restreamlatam.online', 
+    'tmdb.org', 
+    'themoviedb.org', 
+    'imgur.com'
+];
 $parsedUrl = parse_url($url);
 $host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
 
