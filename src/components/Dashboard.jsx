@@ -277,12 +277,12 @@ const Dashboard = ({ credentials, onLogout }) => {
           </button>
         </nav>
         <div className="header-actions">
-          <button className="icon-btn" title="Refresh Data" onClick={handleRefresh} disabled={isRefreshing}>
+          <button className="icon-btn" title="Actualizar Contenido" aria-label="Actualizar" onClick={handleRefresh} disabled={isRefreshing}>
             <RefreshCw size={22} className={isRefreshing ? "spinning" : ""} />
           </button>
-          <button className="icon-btn" title="Search" onClick={() => setShowSearch(true)}><Search size={22} /></button>
-          <button className="icon-btn" title="Settings" onClick={() => setShowSettings(true)}><Settings size={22} /></button>
-          <button className="icon-btn" title="Logout" onClick={onLogout}><LogOut size={22} /></button>
+          <button className="icon-btn" title="Buscar" aria-label="Buscar" onClick={() => setShowSearch(true)}><Search size={22} /></button>
+          <button className="icon-btn" title="Ajustes" aria-label="Ajustes" onClick={() => setShowSettings(true)}><Settings size={22} /></button>
+          <button className="icon-btn" title="Cerrar Sesión" aria-label="Salir" onClick={onLogout}><LogOut size={22} /></button>
         </div>
       </header>
 

@@ -3,6 +3,8 @@
  * TV-Altoke High-Performance Smart Proxy
  * Supports: CORS bypass, Range Requests (for seeking), and Custom User-Agent.
  */
+error_reporting(0);
+ini_set('display_errors', 0);
 
 // 1. CORS Headers
 header("Access-Control-Allow-Origin: *");
@@ -37,7 +39,8 @@ $allowedDomains = [
     'restreamlatam.online', 
     'tmdb.org', 
     'themoviedb.org', 
-    'imgur.com'
+    'imgur.com',
+    'postimg.cc'
 ];
 $parsedUrl = parse_url($url);
 $host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
@@ -106,16 +109,17 @@ if ($isApiCall) {
 curl_exec($ch);
 
 if ($isApiCall) {
-    $response = ob_get_clean();
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $response = ob_get_clean();
+    
+    header('Content-Type: application/json');
     
     // Only cache successful JSON responses
     if ($httpCode === 200 && !empty($response)) {
         file_put_contents($cacheFile, $response);
+        header('X-Proxy-Cache: MISS');
     }
     
-    header('Content-Type: application/json');
-    header('X-Proxy-Cache: MISS');
     echo $response;
 }
 

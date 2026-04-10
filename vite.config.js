@@ -32,5 +32,14 @@ export default defineConfig({
         ]
       }
     })
-  ]
+  ],
+  server: {
+    proxy: {
+      '/tv/proxy.php': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/tv/, '')
+      }
+    }
+  }
 })
