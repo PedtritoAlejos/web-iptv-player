@@ -17,8 +17,9 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) || 
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   
-  // Optimization for iOS: Force .mp4 for VOD if the extension is .mkv (not supported by Safari)
-  const initialExtension = (isIOS && type !== "live" && extension === "mkv") ? "mp4" : extension;
+  // Optimization for iOS: Force .m3u8 for VOD as it's the most compatible format for Apple
+  // Based on your provider's supported formats: [m3u8, ts, rtmp]
+  const initialExtension = (isIOS && type !== "live") ? "m3u8" : extension;
   
   const [activeExtension, setActiveExtension] = useState(initialExtension);
   const [retryCount, setRetryCount] = useState(0);
@@ -82,15 +83,15 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
         
         // Smart Retry Logic for iOS/Mobile
         if (type !== "live" && retryCount < 2) {
-          if (activeExtension === "mp4") {
-            console.log("MP4 failed, retrying with M3U8...");
-            setActiveExtension("m3u8");
+          if (activeExtension === "m3u8") {
+            console.log("M3U8 failed, retrying with MP4...");
+            setActiveExtension("mp4");
             setRetryCount(prev => prev + 1);
             setLoading(true);
             return;
-          } else if (activeExtension === "mkv") {
-            console.log("MKV failed, retrying with MP4...");
-            setActiveExtension("mp4");
+          } else if (activeExtension === "mp4") {
+            console.log("MP4 failed, retrying with original extension:", extension);
+            setActiveExtension(extension);
             setRetryCount(prev => prev + 1);
             setLoading(true);
             return;
