@@ -227,28 +227,42 @@ Navegador: ${navigator.userAgent}
 Fecha: ${new Date().toLocaleString()}
 ----------------------------------`;
     
-    // Fallback copy function for non-secure contexts (HTTP)
+    // Fallback copy function for non-secure contexts (HTTP) or restricted mobile browsers
     const fallbackCopy = (text) => {
       const textArea = document.createElement("textarea");
       textArea.value = text;
-      // Ensure it's not visible
+      
+      // Some mobile browsers require the element to be slightly visible to allow selection
       textArea.style.position = "fixed";
-      textArea.style.left = "-9999px";
+      textArea.style.left = "0";
       textArea.style.top = "0";
+      textArea.style.opacity = "0.01";
+      textArea.style.width = "2em";
+      textArea.style.height = "2em";
+      textArea.style.padding = "0";
+      textArea.style.border = "none";
+      textArea.style.outline = "none";
+      textArea.style.boxShadow = "none";
+      textArea.style.background = "transparent";
+      
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
       
+      let successful = false;
       try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-          showToast('Detalles del error copiados', 'success');
-        } else {
-          showToast('Error al copiar detalles', 'error');
-        }
+        successful = document.execCommand('copy');
       } catch (err) {
-        showToast('Error al copiar al portapapeles', 'error');
+        successful = false;
       }
+      
+      if (successful) {
+        showToast('Detalles del error copiados', 'success');
+      } else {
+        // Absolute last resort for HTTP/Restricted browsers: show a prompt with the text
+        window.prompt("Copia el reporte manualmente:", text);
+      }
+      
       document.body.removeChild(textArea);
     };
 
