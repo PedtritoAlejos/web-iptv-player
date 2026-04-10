@@ -12,14 +12,15 @@ const Login = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Pre-fill credentials if they exist in localStorage
-    const stored = localStorage.getItem('tv_altoke_creds');
+    // Pre-fill credentials if they exist in localStorage (either auto-login or remembered)
+    const stored = localStorage.getItem('tv_altoke_creds') || localStorage.getItem('tv_altoke_remembered');
     if (stored) {
       try {
         const decoded = JSON.parse(atob(stored));
         if (decoded.url) setUrl(decoded.url);
         if (decoded.username) setUsername(decoded.username);
         if (decoded.password) setPassword(decoded.password);
+        if (decoded.rememberMe !== undefined) setRememberMe(decoded.rememberMe);
       } catch (e) {
         console.error('Failed to load stored credentials');
       }
@@ -28,6 +29,8 @@ const Login = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    
     setError('');
     setLoading(true);
 

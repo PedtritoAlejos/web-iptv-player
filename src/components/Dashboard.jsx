@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   LogOut, Search, Settings, ChevronRight, ChevronLeft, Play, RefreshCw, 
   Compass, Tv, Film, Clapperboard 

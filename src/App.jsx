@@ -22,10 +22,10 @@ function App() {
   }, []);
 
   const handleLogin = (creds) => {
-    // Basic base64 obfuscation
     const encoded = btoa(JSON.stringify(creds));
     if (creds.rememberMe) {
-       localStorage.setItem('tv_altoke_creds', encoded);
+       localStorage.setItem('tv_altoke_creds', encoded); // For auto-login
+       localStorage.setItem('tv_altoke_remembered', encoded); // For pre-filling
     } else {
        sessionStorage.setItem('tv_altoke_creds', encoded);
     }
@@ -33,6 +33,7 @@ function App() {
   };
 
   const handleLogout = () => {
+    // Remove auto-login credentials but keep "remembered" ones for the form
     localStorage.removeItem('tv_altoke_creds');
     sessionStorage.removeItem('tv_altoke_creds');
     setCredentials(null);
