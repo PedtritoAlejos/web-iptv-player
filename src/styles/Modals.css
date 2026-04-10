@@ -278,96 +278,105 @@
     max-height: 100vh;
     border-radius: 0;
     border: none;
+    overflow-y: auto; /* Changed from hidden to auto for page-like scroll */
   }
 
   .series-header-info {
     flex-direction: row; /* Side-by-side for compactness */
-    padding: 45px 15px 15px;
+    padding: 50px 15px 25px;
     align-items: flex-start;
     text-align: left;
     gap: 15px;
-    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.98), rgba(0, 0, 0, 0.8));
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(to bottom, var(--color-charcoal), rgba(18, 18, 18, 0.95));
+    border-bottom: none;
   }
 
   .series-poster {
     width: 100px;
-    height: 140px;
+    height: 150px;
     min-width: 100px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    border-radius: 8px;
   }
 
   .series-details h1 {
-    font-size: 1.25rem !important;
-    margin-bottom: 5px !important;
-    line-height: 1.2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
+    font-size: 1.4rem !important;
+    margin-bottom: 8px !important;
+    line-height: 1.25;
+    font-weight: 800;
   }
 
   .series-meta {
     justify-content: flex-start;
-    font-size: 0.75rem;
-    margin-bottom: 8px;
-    gap: 10px;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    gap: 12px;
   }
 
   .series-plot {
-    font-size: 0.8rem;
-    line-height: 1.4;
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
-    margin-bottom: 5px;
-    opacity: 0.8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    -webkit-line-clamp: 4 !important; /* Allow more text now that it scrolls naturally */
+    line-clamp: 4 !important;
+    margin-bottom: 10px;
+    opacity: 0.9;
   }
 
   .series-details div[style*="color: var(--color-text-muted)"] {
-    display: none; /* Hide cast on mobile to save critical space */
+    display: block; /* Show cast again as we have vertical space now */
+    font-size: 0.8rem;
+    opacity: 0.7;
   }
 
   .season-tabs {
-    padding: 0 15px;
-    gap: 15px;
-    margin-bottom: 10px;
+    position: sticky; /* Make seasons stick to the top when scrolling down */
+    top: 0;
+    z-index: 1001;
+    padding: 10px 20px;
+    gap: 20px;
+    margin-bottom: 15px;
     background: var(--color-charcoal);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
   }
 
   .season-tab {
-    font-size: 0.85rem;
-    padding: 10px 0;
+    font-size: 0.95rem;
+    padding: 12px 0;
   }
 
   .episodes-list {
-    padding: 0 10px 100px; /* Generous bottom padding for bottom-nav bar */
+    padding: 0 15px 120px; /* Ample bottom padding */
     grid-template-columns: 1fr;
-    gap: 8px;
-    flex: 1;
+    gap: 12px;
+    flex: none;
+    overflow-y: visible !important; /* Disable internal scroll to use page scroll */
   }
 
   .episode-card {
-    padding: 8px;
-    gap: 10px;
+    padding: 12px;
+    gap: 15px;
+    background: rgba(255,255,255,0.03);
   }
 
   .episode-thumb {
-    width: 80px;
-    height: 50px;
+    width: 110px;
+    height: 65px;
   }
 
   .episode-title {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
   }
 
   .modal-close-btn {
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.5);
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     border-radius: 50%;
-    padding: 5px;
+    padding: 6px;
+    z-index: 2005;
   }
 
   /* Settings Modal Mobile */
