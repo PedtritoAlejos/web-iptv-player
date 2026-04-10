@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import '../styles/Modals.css';
 
 const SettingsModal = ({ credentials, onClose, onChangeAccent }) => {
+  const [directMode, setDirectMode] = useState(localStorage.getItem('tv_altoke_direct_mode') === 'true');
+
+  const toggleDirectMode = () => {
+    const newValue = !directMode;
+    setDirectMode(newValue);
+    localStorage.setItem('tv_altoke_direct_mode', newValue);
+  };
+
   const { userInfo } = credentials;
   
   // Format dates appropriately if available
@@ -36,6 +44,19 @@ const SettingsModal = ({ credentials, onClose, onChangeAccent }) => {
           <div className="info-item">
             <span className="info-label">Vencimiento</span>
             <span className="info-value">{expDate}</span>
+          </div>
+        </div>
+
+        <h3 style={{marginTop: '30px', fontSize:'1.1rem', color:'var(--color-text-muted)', marginBottom: '10px'}}>Configuración de Red</h3>
+        <div className="info-item" style={{cursor: 'pointer'}} onClick={toggleDirectMode}>
+          <div style={{display: 'flex', flexDirection: 'column'}}>
+            <span className="info-label">Modo de Conexión</span>
+            <span style={{fontSize: '0.75rem', opacity: 0.7, marginTop: '2px'}}>
+              {directMode ? "Sin Proxy (Más estable en iPhone)" : "Proxy Inteligente (Evita bloqueos de red)"}
+            </span>
+          </div>
+          <div className={`toggle-btn ${directMode ? 'active' : ''}`}>
+            <div className="toggle-thumb"></div>
           </div>
         </div>
 

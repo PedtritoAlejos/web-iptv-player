@@ -13,9 +13,12 @@ const wrapApiUrl = (fullUrl) => {
 export const wrapMediaUrl = (fullUrl) => {
   if (!fullUrl) return fullUrl;
   
+  // User Preference Check: If "Direct Mode" is enabled in settings, bypass proxy.
+  const isDirectMode = localStorage.getItem('tv_altoke_direct_mode') === 'true';
+  if (isDirectMode) return fullUrl;
+  
   // Mixed Content Check: If the app is on HTTPS, we MUST use a proxy for HTTP streams.
   // BUT if the app is on HTTP, we should use DIRECT connections for media.
-  // Direct connections are essential for "Range" requests (seeking) which proxies often break.
   const isCurrentlyHttps = window.location.protocol === 'https:';
   const isMediaHttp = fullUrl.startsWith('http:');
   

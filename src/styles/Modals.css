@@ -74,6 +74,36 @@
 .color-btn:hover { transform: scale(1.1); }
 .color-btn.active { border-color: white; box-shadow: 0 0 10px currentColor; }
 
+/* --- TOGGLE SWITCH --- */
+.toggle-btn {
+  width: 44px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.toggle-btn.active {
+  background: var(--color-accent);
+}
+
+.toggle-thumb {
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: var(--transition-fast);
+}
+
+.toggle-btn.active .toggle-thumb {
+  transform: translateX(20px);
+}
+
+
 /* --- SEARCH OVERLAY --- */
 .search-container {
   width: 100%;

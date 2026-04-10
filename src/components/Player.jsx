@@ -14,7 +14,7 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const [error, setError] = useState(null); // { message, details }
   
   // Detect iOS for specific compatibility adjustments
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+  const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) || 
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   
   // Optimization for iOS: Force .mp4 for VOD if the extension is .mkv (not supported by Safari)
@@ -198,7 +198,7 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
     
     const report = `--- REPORTE DE ERROR TV-ALTOKE ---
 Stream: ${name} (ID: ${streamId})
-Tipo: ${type} | Ext: ${extension}
+Tipo: ${type} | Ext: ${extension} (Auto-Fix: ${adjustedExtension})
 URL (Mascarada): ${maskedUrl}
 Error: ${error.message}
 Detalles: ${error.details}
