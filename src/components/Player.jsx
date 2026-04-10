@@ -9,7 +9,7 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Start muted for mobile compatibility
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   
@@ -22,11 +22,16 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   useEffect(() => {
     let hls;
     const video = videoRef.current;
+    if (!video) return;
     
-    // Check if it's an HLS stream (m3u8). Live streams from Xtream are usually m3u8.
+    // Check if it's an HLS stream (m3u8)
     const isHls = streamUrl.includes('.m3u8');
 
-    if (isHls && Hls.isSupported()) {
+    // Special logic for Safari and iOS: they prefer native HLS support
+    const useNativeHls = video.canPlayType('application/vnd.apple.mpegurl');
+
+    if (isHls && Hls.isSupported() && !useNativeHls) {
+      // Use hls.js for browsers that support MSE but NOT native HLS
       hls = new Hls({
         maxBufferLength: 30,
         maxMaxBufferLength: 60,
@@ -44,28 +49,35 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
         }
       });
     } else {
-      // For Safari native HLS, or direct MP4/MKV VOD playback
+      // For Safari native HLS, iOS, or direct MP4/MKV VOD playback
       video.src = streamUrl;
-      video.addEventListener('loadedmetadata', () => {
+      
+      const handleLoadedData = () => {
         setLoading(false);
-        video.play().catch(e => console.log('Autoplay prevented:', e));
-      });
-      video.addEventListener('error', () => {
+        video.play().catch(e => {
+          console.log('Autoplay prevented, user interaction required:', e);
+          // Some browsers still block it even if muted, but muted gives us the best chance
+        });
+      };
+
+      const handleVideoError = () => {
         setError(true);
         setLoading(false);
-      });
+      };
+
+      video.addEventListener('loadeddata', handleLoadedData);
+      video.addEventListener('error', handleVideoError);
+
+      return () => {
+        video.removeEventListener('loadeddata', handleLoadedData);
+        video.removeEventListener('error', handleVideoError);
+      };
     }
 
     return () => {
       if (hls) {
         hls.destroy();
       }
-      video.removeEventListener('play', () => setIsPlaying(true));
-      video.removeEventListener('pause', () => setIsPlaying(false));
-      video.removeEventListener('seeking', () => setLoading(true));
-      video.removeEventListener('seeked', () => setLoading(false));
-      video.removeEventListener('waiting', () => setLoading(true));
-      video.removeEventListener('playing', () => setLoading(false));
     };
   }, [streamUrl]);
 
@@ -181,9 +193,10 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
         
         <video 
           ref={videoRef}
-          x-webkit-airplay="allow" /* Apple ecosytem native support */
+          x-webkit-airplay="allow" 
           playsInline
           autoPlay
+          muted={isMuted}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
         />
