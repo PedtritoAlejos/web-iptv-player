@@ -11,7 +11,7 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true); // Start muted for mobile compatibility
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null); // { message, details }
   
   // Time States
   const [currentTime, setCurrentTime] = useState(0);
@@ -44,7 +44,10 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
       });
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
-          setError(true);
+          setError({
+            message: 'Error fatal de HLS',
+            details: `Evento: ${event}, Tipo: ${data.type}, Detalles: ${data.details}, Fatal: ${data.fatal}`
+          });
           setLoading(false);
         }
       });
@@ -61,7 +64,15 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
       };
 
       const handleVideoError = () => {
-        setError(true);
+        const mediaError = video.error;
+        let details = 'Error desconocido en el elemento de video';
+        if (mediaError) {
+          details = `Código: ${mediaError.code}, Mensaje: ${mediaError.message || 'N/A'}`;
+        }
+        setError({
+          message: 'Error de reproducción nativa',
+          details: details
+        });
         setLoading(false);
       };
 
@@ -168,6 +179,32 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
     showToast('Iniciando sesión de Cast...', 'info');
     loadMedia(streamUrl, name, "TV-Altoke Stream", logo, extension);
   };
+  
+  const handleCopyError = (e) => {
+    e.stopPropagation();
+    if (!error) return;
+    
+    // Mask sensitive info for security when sharing
+    const maskedUrl = streamUrl
+      .replace(/password=[^&]*/, 'password=********')
+      .replace(/username=[^&]*/, 'username=********');
+    
+    const report = `--- REPORTE DE ERROR TV-ALTOKE ---
+Stream: ${name} (ID: ${streamId})
+Tipo: ${type} | Ext: ${extension}
+URL (Mascarada): ${maskedUrl}
+Error: ${error.message}
+Detalles: ${error.details}
+Navegador: ${navigator.userAgent}
+Fecha: ${new Date().toLocaleString()}
+----------------------------------`;
+    
+    navigator.clipboard.writeText(report).then(() => {
+      showToast('Detalles del error copiados', 'success');
+    }).catch(() => {
+      showToast('Error al copiar al portapapeles', 'error');
+    });
+  };
 
   return (
     <div className="player-overlay active" ref={containerRef}>
@@ -189,7 +226,29 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
 
       <div className="video-container" onClick={togglePlay}>
         {loading && <div className="player-loader">Cargando Stream...</div>}
-        {error && <div className="player-loader" style={{ color: 'var(--color-error)' }}>Error al cargar el stream.</div>}
+        {error && (
+          <div className="player-loader" style={{ 
+            color: 'var(--color-error)', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '15px',
+            background: 'rgba(0,0,0,0.8)',
+            padding: '20px',
+            borderRadius: '12px',
+            maxWidth: '80%',
+            textAlign: 'center'
+          }}>
+            <div>{error.message}</div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{error.details}</div>
+            <button 
+              className="hero-btn" 
+              style={{ fontSize: '0.9rem', padding: '8px 20px', height: 'auto' }}
+              onClick={handleCopyError}
+            >
+              Copiar Detalles del Error
+            </button>
+          </div>
+        )}
         
         <video 
           ref={videoRef}
