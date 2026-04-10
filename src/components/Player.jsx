@@ -206,11 +206,40 @@ Navegador: ${navigator.userAgent}
 Fecha: ${new Date().toLocaleString()}
 ----------------------------------`;
     
-    navigator.clipboard.writeText(report).then(() => {
-      showToast('Detalles del error copiados', 'success');
-    }).catch(() => {
-      showToast('Error al copiar al portapapeles', 'error');
-    });
+    // Fallback copy function for non-secure contexts (HTTP)
+    const fallbackCopy = (text) => {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      // Ensure it's not visible
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          showToast('Detalles del error copiados', 'success');
+        } else {
+          showToast('Error al copiar detalles', 'error');
+        }
+      } catch (err) {
+        showToast('Error al copiar al portapapeles', 'error');
+      }
+      document.body.removeChild(textArea);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(report).then(() => {
+        showToast('Detalles del error copiados', 'success');
+      }).catch(() => {
+        fallbackCopy(report);
+      });
+    } else {
+      fallbackCopy(report);
+    }
   };
 
   return (
