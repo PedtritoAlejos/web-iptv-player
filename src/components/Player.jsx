@@ -19,9 +19,9 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) || 
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   
-  // Optimization for iOS: Force .m3u8 for VOD as it's the most compatible format for Apple
-  // Based on your provider's supported formats: [m3u8, ts, rtmp]
-  const initialExtension = (isIOS && type !== "live") ? "m3u8" : extension;
+  // Optimization: Force .m3u8 for VOD as it's the most compatible format for both Apple 
+  // and PC (via hls.js). Based on your provider's supported formats: [m3u8, ts, rtmp]
+  const initialExtension = (type !== "live") ? "m3u8" : extension;
   
   const [activeExtension, setActiveExtension] = useState(initialExtension);
   const [retryCount, setRetryCount] = useState(0);
