@@ -18,10 +18,28 @@ $url = isset($_GET['url']) ? $_GET['url'] : null;
 
 if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
     http_response_code(400);
-    exit("Invalid URL");
+    exit("URL inválida");
 }
 
-// 3. Setup Request
+// 3. Security: Whitelist allowed domains (Your IPTV Provider)
+$allowedDomains = ['chtvpro.com', 'novatv.us', 'restreamlatam.online'];
+$parsedUrl = parse_url($url);
+$host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
+
+$isAllowed = false;
+foreach ($allowedDomains as $domain) {
+    if (strpos($host, $domain) !== false) {
+        $isAllowed = true;
+        break;
+    }
+}
+
+if (!$isAllowed) {
+    http_response_code(403);
+    exit("Acceso denegado: Dominio no permitido en el proxy.");
+}
+
+// 4. Setup Request
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, false); // Stream directly to output

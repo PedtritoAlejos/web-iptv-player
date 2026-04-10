@@ -6,7 +6,8 @@ import {
 import { 
   getLiveCategories, getLiveStreams, 
   getVodCategories, getVodStreams, 
-  getSeriesCategories, getSeriesStreams 
+  getSeriesCategories, getSeriesStreams,
+  wrapImageUrl
 } from '../utils/xtreamApi';
 import { initializeCastApi } from '../utils/CastHandler';
 import Player from './Player';
@@ -81,7 +82,7 @@ const CategoryRow = ({ category, fetchStreamsFn, credentials, type, fallbackImag
           {loading && <div style={{ padding: '20px', color: '#A0A0A0' }}>Cargando streams...</div>}
           {streams.map((stream, idx) => (
             <div key={`${stream.stream_id}-${idx}`} className="channel-card" onClick={() => setActiveStream(stream)}>
-              <img src={stream.stream_icon || fallbackImage} alt={stream.name} onError={(e) => { e.target.src = fallbackImage; }} />
+              <img src={wrapImageUrl(stream.stream_icon) || fallbackImage} alt={stream.name} onError={(e) => { e.target.src = fallbackImage; }} />
               <div className="channel-info"><span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{stream.name}</span></div>
               <Play className="play-icon" size={40} />
             </div>
@@ -287,7 +288,7 @@ const Dashboard = ({ credentials, onLogout }) => {
         <Player 
           streamId={activeStream.stream_id} 
           name={activeStream.name}
-          logo={activeStream.stream_icon}
+          logo={wrapImageUrl(activeStream.stream_icon)}
           type={activeStream.stream_type}
           extension={activeStream.container_extension}
           credentials={credentials}
@@ -295,7 +296,7 @@ const Dashboard = ({ credentials, onLogout }) => {
         />
       )}
 
-      <div className="hero-section" style={{ backgroundImage: `url(${heroStream?.stream_icon || fallbackImage})` }}>
+      <div className="hero-section" style={{ backgroundImage: `url(${wrapImageUrl(heroStream?.stream_icon) || fallbackImage})` }}>
         <div className="hero-fading"></div>
         <div className="hero-content">
           <div className="hero-meta">{activeTab.toUpperCase()} DESTACADO</div>

@@ -6,6 +6,17 @@
 const BASE = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
 const PROXY_URL = `${BASE}proxy.php?url=`;
 
+export const wrapImageUrl = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  // If it's already a secure or local URL, leave it be.
+  // Otherwise, wrap it to avoid Mixed Content and SSL cert errors.
+  if (url.startsWith('http')) {
+    const proxyBase = window.location.origin + PROXY_URL;
+    return `${proxyBase}${encodeURIComponent(url)}`;
+  }
+  return url;
+};
+
 const wrapApiUrl = (fullUrl) => {
   // To avoid CORS (Cross-Origin Resource Sharing) we route API metadata calls through our custom PHP proxy.
   if (fullUrl.startsWith('http')) {

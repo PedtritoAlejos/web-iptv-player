@@ -315,6 +315,10 @@ Fecha: ${new Date().toLocaleString()}
             <div>{error.message}</div>
             <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{error.details}</div>
             
+            <div style={{ fontSize: '0.85rem', color: '#fff', marginTop: '10px', padding: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
+              Si el error persiste, intenta cambiar la calidad o usa un reproductor externo.
+            </div>
+            
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
               <button 
                 className="hero-btn" 
