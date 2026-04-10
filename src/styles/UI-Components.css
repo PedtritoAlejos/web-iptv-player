@@ -201,6 +201,9 @@ body {
   position: relative;
   transition: var(--transition-fast);
   opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .nav-tab:hover {
@@ -588,19 +591,84 @@ video {
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .dashboard-header {
-    padding: 15px 20px;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
   }
+
+  .dashboard-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-left: 0;
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    justify-content: space-around;
+    padding: 8px 0 env(safe-area-inset-bottom);
+    height: auto;
+    min-height: 65px;
+    z-index: 1000;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+  }
+
+  .nav-tab {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.7rem;
+    padding: 5px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .nav-tab span {
+    font-size: 0.65rem;
+    font-weight: 500;
+  }
+
+  .nav-tab.active::after {
+    bottom: auto;
+    top: -8px;
+    height: 3px;
+    box-shadow: 0 2px 10px rgba(255, 234, 0, 0.8);
+  }
+
+  .dashboard-content {
+    padding-bottom: 80px; /* Space for bottom nav */
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    font-size: 1.2rem;
+  }
+
   .hero-content {
-    padding: 0 20px;
+    padding: 0 15px;
   }
+
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
   }
+
   .row-content {
-    padding: 0 20px;
+    padding: 0 15px;
+    gap: 10px;
   }
+
   .category-title {
-    padding: 0 20px;
+    padding: 0 15px;
+    font-size: 1.1rem;
+  }
+
+  .channel-card {
+    min-width: 180px;
+    height: 100px;
   }
 }
 

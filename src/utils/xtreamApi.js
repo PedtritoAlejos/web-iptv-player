@@ -3,9 +3,11 @@
  */
 
 const wrapUrl = (fullUrl) => {
-  // If we are on HTTPS and the target is HTTP, wrap it in a proxy
-  if (window.location.protocol === 'https:' && fullUrl.startsWith('http:')) {
-    // Switching to codetabs for free production usage
+  // To avoid CORS (Cross-Origin Resource Sharing) and Mixed Content issues, 
+  // we route external API calls through a proxy.
+  // This is necessary because IPTV providers usually don't send CORS headers.
+  if (fullUrl.startsWith('http')) {
+    // Using codetabs as a free proxy service
     return `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`;
   }
   return fullUrl;
