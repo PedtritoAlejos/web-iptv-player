@@ -2,10 +2,14 @@
  * Utility functions for interacting with Xtream Codes API
  */
 
+const PROXY_URL = '/proxy.php?url=';
+
 const wrapApiUrl = (fullUrl) => {
-  // To avoid CORS (Cross-Origin Resource Sharing) we route API metadata calls through a proxy.
+  // To avoid CORS (Cross-Origin Resource Sharing) we route API metadata calls through our custom PHP proxy.
   if (fullUrl.startsWith('http')) {
-    return `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`;
+    // Calculate the absolute path to proxy.php based on the current domain
+    const proxyBase = window.location.origin + PROXY_URL;
+    return `${proxyBase}${encodeURIComponent(fullUrl)}`;
   }
   return fullUrl;
 };
@@ -23,7 +27,8 @@ export const wrapMediaUrl = (fullUrl) => {
   const isMediaHttp = fullUrl.startsWith('http:');
   
   if (isCurrentlyHttps && isMediaHttp) {
-    return `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`;
+    const proxyBase = window.location.origin + PROXY_URL;
+    return `${proxyBase}${encodeURIComponent(fullUrl)}`;
   }
   
   return fullUrl;

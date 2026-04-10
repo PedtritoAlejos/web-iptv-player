@@ -18,9 +18,12 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   
   // Optimization for iOS: Force .mp4 for VOD if the extension is .mkv (not supported by Safari)
-  const adjustedExtension = (isIOS && type !== "live" && extension === "mkv") ? "mp4" : extension;
+  const initialExtension = (isIOS && type !== "live" && extension === "mkv") ? "mp4" : extension;
+  
+  const [activeExtension, setActiveExtension] = useState(initialExtension);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const streamUrl = getStreamUrl(credentials.url, credentials.username, credentials.password, streamId, type, adjustedExtension);
+  const streamUrl = getStreamUrl(credentials.url, credentials.username, credentials.password, streamId, type, activeExtension);
   
   // Time States
   const [currentTime, setCurrentTime] = useState(0);
@@ -76,6 +79,24 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
         if (mediaError) {
           details = `Código: ${mediaError.code}, Mensaje: ${mediaError.message || 'N/A'}`;
         }
+        
+        // Smart Retry Logic for iOS/Mobile
+        if (type !== "live" && retryCount < 2) {
+          if (activeExtension === "mp4") {
+            console.log("MP4 failed, retrying with M3U8...");
+            setActiveExtension("m3u8");
+            setRetryCount(prev => prev + 1);
+            setLoading(true);
+            return;
+          } else if (activeExtension === "mkv") {
+            console.log("MKV failed, retrying with MP4...");
+            setActiveExtension("mp4");
+            setRetryCount(prev => prev + 1);
+            setLoading(true);
+            return;
+          }
+        }
+
         setError({
           message: 'Error de reproducción nativa',
           details: details
@@ -198,7 +219,7 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
     
     const report = `--- REPORTE DE ERROR TV-ALTOKE ---
 Stream: ${name} (ID: ${streamId})
-Tipo: ${type} | Ext: ${extension} (Auto-Fix: ${adjustedExtension})
+Tipo: ${type} | Ext: ${extension} (Final: ${activeExtension}, Reintentos: ${retryCount})
 URL (Mascarada): ${maskedUrl}
 Error: ${error.message}
 Detalles: ${error.details}
@@ -276,13 +297,38 @@ Fecha: ${new Date().toLocaleString()}
           }}>
             <div>{error.message}</div>
             <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{error.details}</div>
-            <button 
-              className="hero-btn" 
-              style={{ fontSize: '0.9rem', padding: '8px 20px', height: 'auto' }}
-              onClick={handleCopyError}
-            >
-              Copiar Detalles del Error
-            </button>
+            
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
+              <button 
+                className="hero-btn" 
+                style={{ fontSize: '0.9rem', padding: '8px 20px', height: 'auto' }}
+                onClick={handleCopyError}
+              >
+                Copiar Detalles
+              </button>
+              
+              <a 
+                href={`vlc://${streamUrl}`}
+                className="hero-btn" 
+                style={{ 
+                  fontSize: '0.9rem', padding: '8px 20px', height: 'auto', 
+                  backgroundColor: '#7289da', color: 'white', textDecoration: 'none' 
+                }}
+              >
+                Abrir en VLC
+              </a>
+              
+              <a 
+                href={`nplayer-${streamUrl}`}
+                className="hero-btn" 
+                style={{ 
+                  fontSize: '0.9rem', padding: '8px 20px', height: 'auto', 
+                  backgroundColor: '#E91E63', color: 'white', textDecoration: 'none' 
+                }}
+              >
+                nPlayer
+              </a>
+            </div>
           </div>
         )}
         
