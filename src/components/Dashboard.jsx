@@ -134,17 +134,19 @@ const Dashboard = ({ credentials, onLogout }) => {
     // eslint-disable-next-line
   }, []);
 
-  const loadContent = async (type) => {
+  const loadContent = async (type, bypassCache = false) => {
     setLoading(true);
     try {
-      if (type === 'live' && liveData.categories.length > 0) { setLoading(false); return liveData; }
-      if (type === 'movie' && movieData.categories.length > 0) { setLoading(false); return movieData; }
-      if (type === 'series' && seriesData.categories.length > 0) { setLoading(false); return seriesData; }
+      if (!bypassCache) {
+        if (type === 'live' && liveData.categories.length > 0) { setLoading(false); return liveData; }
+        if (type === 'movie' && movieData.categories.length > 0) { setLoading(false); return movieData; }
+        if (type === 'series' && seriesData.categories.length > 0) { setLoading(false); return seriesData; }
+      }
 
       let fetchCats = type === 'live' ? getLiveCategories : (type === 'movie' ? getVodCategories : getSeriesCategories);
       let fetchStreamsFn = type === 'live' ? getLiveStreams : (type === 'movie' ? getVodStreams : getSeriesStreams);
 
-      const cats = await fetchCats(credentials.url, credentials.username, credentials.password);
+      const cats = await fetchCats(credentials.url, credentials.username, credentials.password, bypassCache);
       
       // Removed .slice() - Load ALL categories!
       const allCats = cats || [];
@@ -152,7 +154,7 @@ const Dashboard = ({ credentials, onLogout }) => {
       // Fetch only the VERY FIRST category streams for the Hero component immediately
       let firstStreams = [];
       if (allCats.length > 0) {
-         firstStreams = await fetchStreamsFn(credentials.url, credentials.username, credentials.password, allCats[0].category_id);
+         firstStreams = await fetchStreamsFn(credentials.url, credentials.username, credentials.password, allCats[0].category_id, bypassCache);
          firstStreams = (firstStreams || []).map(s => ({
             ...s,
             stream_id: s.stream_id || s.series_id,
@@ -191,20 +193,20 @@ const Dashboard = ({ credentials, onLogout }) => {
     setLiveData({ categories: [] });
     setMovieData({ categories: [] });
     setSeriesData({ categories: [] });
-    // Reload active tab specifically
-    await handleTabChange(activeTab);
+    // Reload active tab specifically, forcing bypassCache
+    await handleTabChange(activeTab, true);
     setIsRefreshing(false);
     showToast('Contenido actualizado correctamente', 'success');
   };
 
-  const handleTabChange = async (tab) => {
+  const handleTabChange = async (tab, bypassCache = false) => {
     setActiveTab(tab);
-    if (tab === 'live') await loadContent('live');
-    if (tab === 'movie') await loadContent('movie');
-    if (tab === 'series') await loadContent('series');
+    if (tab === 'live') await loadContent('live', bypassCache);
+    if (tab === 'movie') await loadContent('movie', bypassCache);
+    if (tab === 'series') await loadContent('series', bypassCache);
     if (tab === 'discovery') {
-      await loadContent('live');
-      await loadContent('movie');
+      await loadContent('live', bypassCache);
+      await loadContent('movie', bypassCache);
     }
   };
 

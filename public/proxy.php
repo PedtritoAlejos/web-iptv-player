@@ -13,6 +13,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+// 2. Cache Configuration
+$cacheDir = __DIR__ . '/cache';
+$cacheTime = 86400; // 24 hours
+$bypassCache = isset($_GET['bypass_cache']) && $_GET['bypass_cache'] === 'true';
+
+if (!is_dir($cacheDir)) {
+    mkdir($cacheDir, 0755, true);
+}
+
 // 2. Validate Target URL
 $url = isset($_GET['url']) ? $_GET['url'] : null;
 
@@ -37,6 +46,19 @@ foreach ($allowedDomains as $domain) {
 if (!$isAllowed) {
     http_response_code(403);
     exit("Acceso denegado: Dominio no permitido en el proxy.");
+}
+
+// 4. Cache Check (Only for API metadata, not video streams)
+$isApiCall = strpos($url, 'player_api.php') !== false;
+$cacheFile = $cacheDir . '/' . md5($url) . '.json';
+
+if ($isApiCall && !$bypassCache && file_exists($cacheFile)) {
+    if ((time() - filemtime($cacheFile)) < $cacheTime) {
+        header('Content-Type: application/json');
+        header('X-Proxy-Cache: HIT');
+        readfile($cacheFile);
+        exit;
+    }
 }
 
 // 4. Setup Request
@@ -69,6 +91,25 @@ curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $header) {
     return $len;
 });
 
-// 6. Execute and Pipe Stream
+// 6. Execute and Handle Caching
+if ($isApiCall) {
+    ob_start();
+}
+
 curl_exec($ch);
+
+if ($isApiCall) {
+    $response = ob_get_clean();
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    // Only cache successful JSON responses
+    if ($httpCode === 200 && !empty($response)) {
+        file_put_contents($cacheFile, $response);
+    }
+    
+    header('Content-Type: application/json');
+    header('X-Proxy-Cache: MISS');
+    echo $response;
+}
+
 curl_close($ch);

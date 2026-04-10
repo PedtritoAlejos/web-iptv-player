@@ -17,12 +17,13 @@ export const wrapImageUrl = (url) => {
   return url;
 };
 
-const wrapApiUrl = (fullUrl) => {
+const wrapApiUrl = (fullUrl, bypassCache = false) => {
   // To avoid CORS (Cross-Origin Resource Sharing) we route API metadata calls through our custom PHP proxy.
   if (fullUrl.startsWith('http')) {
     // Calculate the absolute path to proxy.php based on the current domain and base path
     const proxyBase = window.location.origin + PROXY_URL;
-    return `${proxyBase}${encodeURIComponent(fullUrl)}`;
+    const cacheParam = bypassCache ? '&bypass_cache=true' : '';
+    return `${proxyBase}${encodeURIComponent(fullUrl)}${cacheParam}`;
   }
   return fullUrl;
 };
@@ -47,10 +48,10 @@ export const wrapMediaUrl = (fullUrl) => {
   return fullUrl;
 };
 
-export const login = async (url, username, password) => {
+export const login = async (url, username, password, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}`, bypassCache);
     
     const response = await fetch(fullUrl);
     
@@ -71,10 +72,10 @@ export const login = async (url, username, password) => {
   }
 };
 
-export const getLiveCategories = async (url, username, password) => {
+export const getLiveCategories = async (url, username, password, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`, bypassCache);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -83,10 +84,10 @@ export const getLiveCategories = async (url, username, password) => {
   }
 };
 
-export const getLiveStreams = async (url, username, password, categoryId) => {
+export const getLiveStreams = async (url, username, password, categoryId, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`, bypassCache);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -95,10 +96,10 @@ export const getLiveStreams = async (url, username, password, categoryId) => {
   }
 };
 
-export const getVodCategories = async (url, username, password) => {
+export const getVodCategories = async (url, username, password, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`, bypassCache);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -107,10 +108,10 @@ export const getVodCategories = async (url, username, password) => {
   }
 };
 
-export const getVodStreams = async (url, username, password, categoryId) => {
+export const getVodStreams = async (url, username, password, categoryId, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`, bypassCache);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -119,10 +120,10 @@ export const getVodStreams = async (url, username, password, categoryId) => {
   }
 };
 
-export const getSeriesCategories = async (url, username, password) => {
+export const getSeriesCategories = async (url, username, password, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`, bypassCache);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -131,10 +132,10 @@ export const getSeriesCategories = async (url, username, password) => {
   }
 };
 
-export const getSeriesStreams = async (url, username, password, categoryId) => {
+export const getSeriesStreams = async (url, username, password, categoryId, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${categoryId}`, bypassCache);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
@@ -143,10 +144,10 @@ export const getSeriesStreams = async (url, username, password, categoryId) => {
   }
 };
 
-export const getSeriesInfo = async (url, username, password, seriesId) => {
+export const getSeriesInfo = async (url, username, password, seriesId, bypassCache = false) => {
   try {
     const cleanUrl = url.replace(/\/$/, "");
-    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`);
+    const fullUrl = wrapApiUrl(`${cleanUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`, bypassCache);
     const response = await fetch(fullUrl);
     return await response.json();
   } catch (error) {
