@@ -2,12 +2,14 @@
  * Utility functions for interacting with Xtream Codes API
  */
 
-const PROXY_URL = '/proxy.php?url=';
+// Use the base URL from Vite config to handle subfolder deployments (like /tv/)
+const BASE = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
+const PROXY_URL = `${BASE}proxy.php?url=`;
 
 const wrapApiUrl = (fullUrl) => {
   // To avoid CORS (Cross-Origin Resource Sharing) we route API metadata calls through our custom PHP proxy.
   if (fullUrl.startsWith('http')) {
-    // Calculate the absolute path to proxy.php based on the current domain
+    // Calculate the absolute path to proxy.php based on the current domain and base path
     const proxyBase = window.location.origin + PROXY_URL;
     return `${proxyBase}${encodeURIComponent(fullUrl)}`;
   }
