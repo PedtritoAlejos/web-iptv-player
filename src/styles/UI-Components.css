@@ -666,3 +666,70 @@ video {
   to { transform: translateX(0); opacity: 1; }
 }
 
+/* --- PLAYER EXTRAS --- */
+.central-skip-btn {
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  border: none;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.central-skip-btn:active {
+  transform: scale(0.9);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.central-skip-btn span {
+  font-size: 10px;
+  font-weight: 800;
+  margin-top: -22px;
+}
+
+.external-player-btn {
+  padding: 6px 15px;
+  border-radius: 20px;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.external-player-btn.vlc {
+  background: rgba(235, 123, 0, 0.3);
+  border: 1px solid rgba(235, 123, 0, 0.5);
+}
+
+.external-player-btn.nplayer {
+  background: rgba(233, 30, 99, 0.3);
+  border: 1px solid rgba(233, 30, 99, 0.5);
+}
+
+.external-player-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+}
+
+@media (max-width: 768px) {
+  .central-skip-btn {
+    width: 60px;
+    height: 60px;
+  }
+}
+

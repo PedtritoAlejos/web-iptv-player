@@ -97,15 +97,16 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
         }
         
         // Smart Retry Logic for iOS/Mobile
-        if (type !== "live" && retryCount < 2) {
+        if (retryCount < 2) {
           if (activeExtension === "m3u8") {
-            console.log("M3U8 failed, retrying with MP4...");
-            setActiveExtension("mp4");
+            const nextExt = type === "live" ? "ts" : "mp4";
+            console.log(`M3U8 failed, retrying with ${nextExt}...`);
+            setActiveExtension(nextExt);
             setRetryCount(prev => prev + 1);
             setLoading(true);
             return;
-          } else if (activeExtension === "mp4") {
-            console.log("MP4 failed, retrying with original extension:", extension);
+          } else if (activeExtension === "mp4" || activeExtension === "ts") {
+            console.log(`Fallback ${activeExtension} failed, retrying with original extension:`, extension);
             setActiveExtension(extension);
             setRetryCount(prev => prev + 1);
             setLoading(true);
@@ -350,6 +351,25 @@ Fecha: ${new Date().toLocaleString()}
 
       <div className="video-container" onClick={toggleControls}>
         {loading && <div className="player-loader">Cargando Stream...</div>}
+        
+        {/* Central Overlay Controls */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          display: 'flex', gap: '80px', zIndex: 1005,
+          opacity: showControls ? 1 : 0, pointerEvents: showControls ? 'auto' : 'none',
+          transition: 'opacity 0.3s'
+        }}>
+          <button className="central-skip-btn" onClick={skipBackward} title="Atrás 10s">
+            <RefreshCw size={40} style={{ transform: 'scaleX(-1)' }} />
+            <span>10</span>
+          </button>
+          
+          <button className="central-skip-btn" onClick={skipForward} title="Adelante 10s">
+            <RefreshCw size={40} />
+            <span>10</span>
+          </button>
+        </div>
+
         {error && (
           <div className="player-loader" style={{ 
             color: 'var(--color-error)', 
@@ -371,34 +391,17 @@ Fecha: ${new Date().toLocaleString()}
             
             <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
               <button 
-                className="hero-btn" 
-                style={{ fontSize: '0.8rem', padding: '6px 15px', height: 'auto', backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
-                onClick={handleCopyError}
-              >
-                Copiar Detalles
-              </button>
-              
-              <a 
-                href={`vlc://${streamUrl}`}
-                className="hero-btn" 
-                style={{ 
-                  fontSize: '0.9rem', padding: '8px 20px', height: 'auto', 
-                  backgroundColor: '#7289da', color: 'white', textDecoration: 'none' 
-                }}
+                className="external-player-btn vlc"
+                onClick={() => window.location.href = `vlc://${streamUrl}`}
               >
                 Abrir en VLC
-              </a>
-              
-              <a 
-                href={`nplayer-${streamUrl}`}
-                className="hero-btn" 
-                style={{ 
-                  fontSize: '0.9rem', padding: '8px 20px', height: 'auto', 
-                  backgroundColor: '#E91E63', color: 'white', textDecoration: 'none' 
-                }}
+              </button>
+              <button 
+                className="external-player-btn nplayer"
+                onClick={() => window.location.href = `nplayer-${streamUrl}`}
               >
                 nPlayer
-              </a>
+              </button>
             </div>
 
             {showManualCopy && (
@@ -495,9 +498,17 @@ Fecha: ${new Date().toLocaleString()}
                 </button>
               </div>
              
-             <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleFullScreen(); }}>
-               <Maximize size={24}/>
-             </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="external-player-btn vlc" onClick={() => window.location.href = `vlc://${streamUrl}`}>
+                  VLC
+                </button>
+                <button className="external-player-btn nplayer" onClick={() => window.location.href = `nplayer-${streamUrl}`}>
+                  nPlayer
+                </button>
+                <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleFullScreen(); }}>
+                  <Maximize size={24}/>
+                </button>
+              </div>
            </div>
         </div>
       </div>

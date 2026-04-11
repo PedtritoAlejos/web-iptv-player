@@ -131,8 +131,32 @@ if ($isApiCall) {
         header('X-Proxy-Cache: MISS');
     }
     echo $response;
+} else if (strpos($url, '.m3u8') !== false) {
+    // For HLS Playlists: We MUST rewrite relative paths to absolute URLs
+    // so the browser knows where to find the segments.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $content = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    ob_end_clean();
+    
+    if ($httpCode === 200) {
+        // Base path for the provider
+        $basePath = dirname($url) . '/';
+        
+        // Match relative paths (not starting with http, /, or #)
+        // This is a simplified regex; some playlists might need more complex parsing
+        $rewritten = preg_replace_callback('/^(?!(?:http|#|\/))(.*)$/m', function($matches) use ($basePath) {
+            return $basePath . $matches[1];
+        }, $content);
+        
+        header("Content-Type: application/vnd.apple.mpegurl");
+        echo $rewritten;
+    } else {
+        http_response_code($httpCode);
+    }
 } else {
-    // For Video: Discard primary buffer and stream directly
+    // For Video Segments/Direct Streams: Discard primary buffer and stream directly
     ob_end_clean();
     curl_exec($ch);
 }
