@@ -156,20 +156,18 @@ export const getSeriesInfo = async (url, username, password, seriesId, bypassCac
   }
 };
 
-export const getStreamUrl = (url, username, password, streamId, type = "live", extension = "mkv") => {
-  const baseUrl = url.replace(/\/$/, "");
-  let streamUrl = "";
+export const getStreamUrl = (baseUrl, username, password, streamId, type, extension = 'ts', format = null) => {
+  let url = '';
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   
-  if (type === "live") {
-    streamUrl = `${baseUrl}/live/${username}/${password}/${streamId}.m3u8`;
-  } else if (type === "movie") {
-    streamUrl = `${baseUrl}/movie/${username}/${password}/${streamId}.${extension}`;
-  } else if (type === "series") {
-    streamUrl = `${baseUrl}/series/${username}/${password}/${streamId}.${extension}`;
+  if (type === 'live') {
+    const ext = format === 'm3u8' ? 'm3u8' : extension;
+    url = `${cleanBase}/live/${username}/${password}/${streamId}.${ext}`;
+  } else if (type === 'series') {
+    url = `${cleanBase}/series/${username}/${password}/${streamId}.${extension}`;
   } else {
-    streamUrl = `${baseUrl}/live/${username}/${password}/${streamId}.m3u8`;
+    // defaults to movie
+    url = `${cleanBase}/movie/${username}/${password}/${streamId}.${extension}`;
   }
-
-  // Use wrapMediaUrl to prioritize direct connections for video streams
-  return wrapMediaUrl(streamUrl);
+  return wrapMediaUrl(url);
 };

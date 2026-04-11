@@ -31,7 +31,15 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const [activeExtension, setActiveExtension] = useState(initialExtension);
   const [retryCount, setRetryCount] = useState(0);
 
-  const streamUrl = getStreamUrl(credentials.url, credentials.username, credentials.password, streamId, type, activeExtension);
+  const streamUrl = getStreamUrl(
+    credentials.url, 
+    credentials.username, 
+    credentials.password, 
+    streamId, 
+    type, 
+    activeExtension,
+    (isIOS && type === 'live') ? 'm3u8' : null
+  );
   
   // Time States
   const [currentTime, setCurrentTime] = useState(0);
