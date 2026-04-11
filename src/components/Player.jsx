@@ -1,6 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Hls from 'hls.js';
-import { ArrowLeft, Cast, Maximize, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { 
+  Play, Pause, Volume2, VolumeX, Maximize, X, 
+  ChevronRight, RefreshCw, ExternalLink, ArrowLeft, Cast 
+} from 'lucide-react';
 import { getStreamUrl } from '../utils/xtreamApi';
 import { loadMedia } from '../utils/CastHandler';
 import { showToast } from './Toast';

@@ -16,11 +16,10 @@ import SettingsModal from './SettingsModal';
 import SeriesModal from './SeriesModal';
 import { showToast } from './Toast';
 
-const CategoryRow = ({ category, fetchStreamsFn, credentials, type, fallbackImage, setActiveStream }) => {
+const CategoryRow = ({ category, fetchStreamsFn, credentials, type, fallbackImage, setActiveStream, limit = 0 }) => {
   const [streams, setStreams] = useState(category.streams || []);
   const [loading, setLoading] = useState(!category.streams);
   const containerRef = useRef(null);
-  const rowContentRef = useRef(null);
 
   useEffect(() => {
     if (streams.length > 0) return; // already loaded
@@ -62,35 +61,24 @@ const CategoryRow = ({ category, fetchStreamsFn, credentials, type, fallbackImag
     }
   };
 
-  const scrollRow = (direction) => {
-    if (rowContentRef.current) {
-      const scrollAmount = direction === 'left' ? -400 : 400;
-      rowContentRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
   if (!loading && streams.length === 0) return <div ref={containerRef} style={{ display: 'none' }}></div>;
+
+  const displayStreams = limit > 0 ? streams.slice(0, limit) : streams;
 
   return (
     <div className="category-row" ref={containerRef}>
       <h2 className="category-title">{category.category_name}</h2>
-      <div className="row-container">
-        <button className="scroll-btn left" onClick={() => scrollRow('left')}>
-          <ChevronLeft size={30} />
-        </button>
-        <div className="row-content" ref={rowContentRef}>
+      <div className="grid-container">
+        <div className="grid-content">
           {loading && <div style={{ padding: '20px', color: '#A0A0A0' }}>Cargando streams...</div>}
-          {streams.map((stream, idx) => (
+          {displayStreams.map((stream, idx) => (
             <div key={`${stream.stream_id}-${idx}`} className="channel-card" onClick={() => setActiveStream(stream)}>
               <img src={wrapImageUrl(stream.stream_icon) || fallbackImage} alt={stream.name} onError={(e) => { e.target.src = fallbackImage; }} />
-              <div className="channel-info"><span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{stream.name}</span></div>
-              <Play className="play-icon" size={40} />
+              <div className="channel-info"><span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{stream.name}</span></div>
+              <Play className="play-icon" size={32} />
             </div>
           ))}
         </div>
-        <button className="scroll-btn right" onClick={() => scrollRow('right')}>
-          <ChevronRight size={30} />
-        </button>
       </div>
     </div>
   );
@@ -241,17 +229,22 @@ const Dashboard = ({ credentials, onLogout }) => {
       return loading ? <div style={{padding: '50px'}}>Cargando contenido...</div> : <div style={{padding: '50px'}}>No hay categorías.</div>;
     }
 
-    return currentData.categories.map((cat, i) => (
-      <CategoryRow 
-        key={`${cat.category_id}-${i}`} 
-        category={cat} 
-        fetchStreamsFn={fetchFn} 
-        credentials={credentials} 
-        type={type} 
-        fallbackImage={fallbackImage} 
-        setActiveStream={handleItemClick} 
-      />
-    ));
+    return (
+      <div className="categories-container">
+        {currentData.categories.map((cat, i) => (
+          <CategoryRow 
+            key={`${cat.category_id}-${i}`} 
+            category={cat} 
+            fetchStreamsFn={fetchFn} 
+            credentials={credentials} 
+            type={type} 
+            fallbackImage={fallbackImage} 
+            setActiveStream={handleItemClick} 
+            limit={activeTab === 'discovery' ? 10 : 0}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
