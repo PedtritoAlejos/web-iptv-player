@@ -33,3 +33,6 @@ dist-ssr
 # Vite
 # vite.config.js.timestamp-*
 # vite.config.ts.timestamp-*
+
+# Cache
+public/cache/

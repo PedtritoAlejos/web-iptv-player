@@ -14,6 +14,8 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   const [error, setError] = useState(null); // { message, details }
   const [showManualCopy, setShowManualCopy] = useState(false);
   const [reportContent, setReportContent] = useState("");
+  const [showControls, setShowControls] = useState(true);
+  const controlsTimeoutRef = useRef(null);
   
   // Detect iOS for specific compatibility adjustments
   const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) || 
@@ -181,8 +183,45 @@ const Player = ({ streamId, name, logo, type = "live", extension = "mkv", creden
   };
 
   const handleLoadedMetadata = () => {
+    setDuration(videoRef.current.duration);
+    setLoading(false);
+    resetControlsTimeout();
+  };
+
+  const resetControlsTimeout = () => {
+    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    setShowControls(true);
+    
+    // Auto-hide controls after 3 seconds
+    controlsTimeoutRef.current = setTimeout(() => {
+      if (isPlaying) {
+        setShowControls(false);
+      }
+    }, 3000);
+  };
+
+  const toggleControls = (e) => {
+    e.stopPropagation();
+    if (showControls) {
+      setShowControls(false);
+    } else {
+      resetControlsTimeout();
+    }
+  };
+
+  const skipForward = (e) => {
+    e.stopPropagation();
     if (videoRef.current) {
-      setDuration(videoRef.current.duration);
+      videoRef.current.currentTime = Math.min(videoRef.current.duration, videoRef.current.currentTime + 10);
+      resetControlsTimeout();
+    }
+  };
+
+  const skipBackward = (e) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
+      resetControlsTimeout();
     }
   };
 
@@ -298,7 +337,7 @@ Fecha: ${new Date().toLocaleString()}
         </div>
       </div>
 
-      <div className="video-container" onClick={togglePlay}>
+      <div className="video-container" onClick={toggleControls}>
         {loading && <div className="player-loader">Cargando Stream...</div>}
         {error && (
           <div className="player-loader" style={{ 
@@ -319,10 +358,10 @@ Fecha: ${new Date().toLocaleString()}
               Si el error persiste, intenta cambiar la calidad o usa un reproductor externo.
             </div>
             
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
               <button 
                 className="hero-btn" 
-                style={{ fontSize: '0.9rem', padding: '8px 20px', height: 'auto' }}
+                style={{ fontSize: '0.8rem', padding: '6px 15px', height: 'auto', backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
                 onClick={handleCopyError}
               >
                 Copiar Detalles
@@ -393,8 +432,10 @@ Fecha: ${new Date().toLocaleString()}
           position: 'absolute', bottom: 0, left: 0, right: 0, 
           padding: '20px 40px', display: 'flex', flexDirection: 'column', gap: '15px',
           background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)',
-          opacity: 0, transition: 'opacity 0.3s', zIndex: 1002
-        }} className="player-controls">
+          opacity: showControls ? 1 : 0, 
+          pointerEvents: showControls ? 'auto' : 'none',
+          transition: 'opacity 0.3s', zIndex: 1002
+        }} className="player-controls" onClick={(e) => e.stopPropagation()}>
            
            {/* Seek Bar Area */}
            {!isLive && duration > 0 && (
@@ -418,15 +459,30 @@ Fecha: ${new Date().toLocaleString()}
              </div>
            )}
 
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-             <div style={{ display: 'flex', gap: '20px' }}>
-               <button className="icon-btn" onClick={(e) => { e.stopPropagation(); togglePlay(); }}>
-                 {isPlaying ? <Pause size={24}/> : <Play size={24}/>}
-               </button>
-               <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleMute(); }}>
-                 {isMuted ? <VolumeX size={24}/> : <Volume2 size={24}/>}
-               </button>
-             </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '25px', alignItems: 'center' }}>
+                <button className="icon-btn" onClick={skipBackward} title="Atrás 10s">
+                  <div style={{ position: 'relative' }}>
+                    <RefreshCw size={24} style={{ transform: 'scaleX(-1)' }} />
+                    <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '8px', fontWeight: 800 }}>10</span>
+                  </div>
+                </button>
+
+                <button className="icon-btn" onClick={togglePlay}>
+                  {isPlaying ? <Pause size={32}/> : <Play size={32}/>}
+                </button>
+
+                <button className="icon-btn" onClick={skipForward} title="Adelante 10s">
+                  <div style={{ position: 'relative' }}>
+                    <RefreshCw size={24} />
+                    <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '8px', fontWeight: 800 }}>10</span>
+                  </div>
+                </button>
+
+                <button className="icon-btn" onClick={toggleMute}>
+                  {isMuted ? <VolumeX size={24}/> : <Volume2 size={24}/>}
+                </button>
+              </div>
              
              <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleFullScreen(); }}>
                <Maximize size={24}/>
