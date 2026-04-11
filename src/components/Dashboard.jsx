@@ -251,24 +251,6 @@ const Dashboard = ({ credentials, onLogout }) => {
     <div className="dashboard-content">
       <header className="dashboard-header">
         <div className="brand-logo">TV<span>-Altoke</span></div>
-        <nav className="dashboard-nav">
-          <button className={`nav-tab ${activeTab === 'discovery' ? 'active' : ''}`} onClick={() => handleTabChange('discovery')}>
-            <Compass size={20} />
-            <span>Discovery</span>
-          </button>
-          <button className={`nav-tab ${activeTab === 'live' ? 'active' : ''}`} onClick={() => handleTabChange('live')}>
-            <Tv size={20} />
-            <span>En Vivo</span>
-          </button>
-          <button className={`nav-tab ${activeTab === 'movie' ? 'active' : ''}`} onClick={() => handleTabChange('movie')}>
-            <Film size={20} />
-            <span>Películas</span>
-          </button>
-          <button className={`nav-tab ${activeTab === 'series' ? 'active' : ''}`} onClick={() => handleTabChange('series')}>
-            <Clapperboard size={20} />
-            <span>Series</span>
-          </button>
-        </nav>
         <div className="header-actions">
           <button className="icon-btn" title="Actualizar Contenido" aria-label="Actualizar" onClick={handleRefresh} disabled={isRefreshing}>
             <RefreshCw size={22} className={isRefreshing ? "spinning" : ""} />
@@ -278,6 +260,25 @@ const Dashboard = ({ credentials, onLogout }) => {
           <button className="icon-btn" title="Cerrar Sesión" aria-label="Salir" onClick={onLogout}><LogOut size={22} /></button>
         </div>
       </header>
+
+      <nav className="dashboard-nav">
+        <button className={`nav-tab ${activeTab === 'discovery' ? 'active' : ''}`} onClick={() => handleTabChange('discovery')}>
+          <Compass size={20} />
+          <span>Discovery</span>
+        </button>
+        <button className={`nav-tab ${activeTab === 'live' ? 'active' : ''}`} onClick={() => handleTabChange('live')}>
+          <Tv size={20} />
+          <span>En Vivo</span>
+        </button>
+        <button className={`nav-tab ${activeTab === 'movie' ? 'active' : ''}`} onClick={() => handleTabChange('movie')}>
+          <Film size={20} />
+          <span>Películas</span>
+        </button>
+        <button className={`nav-tab ${activeTab === 'series' ? 'active' : ''}`} onClick={() => handleTabChange('series')}>
+          <Clapperboard size={20} />
+          <span>Series</span>
+        </button>
+      </nav>
 
       {activeStream && (
         <Player 
